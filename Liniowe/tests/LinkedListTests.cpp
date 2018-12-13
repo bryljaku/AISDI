@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GivenNonEmptyCollection_WhenMoveAssigning_ThenAllE
   thenCopiedObjectsCountWas<T>(0);
   thenAssignedObjectsCountWas<T>(0);
   thenMovedObjectsCountWas<T>(0);
-  thenDestroyedObjectsCountWas<T>(4);
+  thenDestroyedObjectsCountWas<T>(6);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(GivenEmptyCollection_WhenMoveAssigning_ThenNewCollectionIsEmpty,
