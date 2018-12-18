@@ -12,9 +12,7 @@ int default_vector_size = 8;
 template <typename Type>
 class Vector
 {
-private:
-    Type *array;
-    int size, reserved_size;
+
 
 public:
     using difference_type = std::ptrdiff_t;
@@ -29,37 +27,40 @@ public:
     class Iterator;
     using iterator = Iterator;
     using const_iterator = ConstIterator;
+private:
+    Type *_array;
+    size_type _size, _max_size;
 
     Vector()
     {
-        _array = nullptr;
-        _size = 0;
-        _max_size = 0;
+        this->_array = nullptr;
+        this->_size = 0;
+        this->_max_size = 0;
     }
     Vector(std::initializer_list<Type> l)
     {
         //overflow exception needed?
-        _size = l.size();
-        _max_size = 2 * _size;
-        _array = new Type[_max_size];
-        for (int i = 0; i<_size; i++)
+        this->_size = l.size();
+        this->_max_size = 2 * this->_size;
+        this->_array = new Type[this->_max_size];
+        for (int i = 0; i < this->_size; i++)
         {
-            _array[i] = l[i];
+            this->_array[i] = l[i];
         }
     }
 
     Vector(const Vector& other)
     {
-        _size = other._size;
-        _array = other._array;
-        _max_size = other._max_size;
+        this->_size = other._size;
+        this->_array = other._array;
+        this->_max_size = other._max_size;
     }
 
     Vector(Vector&& other)
     {
-        _size = other._size;
-        _array = other._array;
-        _max_size = other._max_size;
+        this->_size = other._size;
+        this->_array = other._array;
+        this->_max_size = other._max_size;
         other._size = 0;
         other._array = nullptr;
         other._max_size = 0;
@@ -70,21 +71,21 @@ public:
 
     Vector& operator=(const Vector& other)
     {
-        if(this == &other) return *this;
+        if(this == &(other) )return *this;
         erase(begin(),end());
-        _size = other._size;
-        _array = other._array;
-        _max_size = other._max_size;
-        return *this
+        this->_size = other._size;
+        this->_array = other._array;
+        this->_max_size = other._max_size;
+        return *this;
     }
 
     Vector& operator=(Vector&& other)
     {
-        if(this == &other) return *this;
+        if(this == &(other)) return *this;
         erase(begin(),end());
-        _size = other._size;
-        _array = other._array;
-        _max_size = other._max_size;
+        this->_size = other._size;
+        this->_array = other._array;
+        this->_max_size = other._max_size;
         other._size = 0;
         other._array = nullptr;
         other._max_size = 0;
@@ -93,38 +94,34 @@ public:
 
     bool isEmpty() const
     {
-        if(_size == 0) return true;
-        return false;
+        if(this->_size) return false;
+        return true;
     }
 
     size_type getSize() const
     {
-        return _size;
+        return this->_size;
     }
 
     void append(const Type& item)
     {
-        if(_size == _max_size) resize(_max_size);
-
-
-
-
-        _array[_size] = item;
-        _size++;
+        if(this->_size == this->_max_size) resize(this->_max_size);
+        this->_array[this->_size] = item;
+        this->_size++;
     }
     void resize()
     {
-        if(_max_size == 0)
+        if(this -> _max_size == 0)
         {
-            if(_array != nullptr) throw std::out_of_range("Something is wrong");
-            _max_size = default_vector_size;
-            Type *new_array = new Type[_max_size];
-            _array = new_array;
+            if(this->_array != nullptr) throw std::out_of_range("Something is wrong");
+            this->_max_size = default_vector_size;
+            Type *new_array = new Type[this->_max_size];
+            this->_array = this->new_array;
         }
         else
         {
-            if(_array == nullptr) throw std::out_of_range("Impossibe, vector pointer NULL and size > 0");
-            Type *new_array = new Type[2 * _max_size];
+            if(this->_array == nullptr) throw std::out_of_range("Impossibe, vector pointer NULL and size > 0");
+            Type *new_array = new Type[2 * this->_max_size];
             for(iterator it = begin(); it != end(); it++)
             {
                 new_array[it.position] = *it.current;
@@ -136,7 +133,7 @@ public:
                 what must be done in Iterator class XD
                 */
             }
-            _max_size = 2 * _max_size;
+            this->_max_size = 2 * this->_max_size;
         }
     }
 
@@ -147,58 +144,71 @@ public:
 
     void insert(const const_iterator& insertPosition, const Type& item)
     {
-        if(_size >= _max_size)
+        if(this->_size >= this->_max_size)
             resize();
-        ConstIterator it = insertPosition;
-        for(ConstIterator it2 = end(); it2 != it; it2--)
+        ConstIterator it;
+
+        for(it = end(); it!= insertPosition; it--)
         {
-            _array[it2.position] = _array[it2.position - 1];
+            this->_array[it.position] = this->_array[it.position - 1];
         }
-        _array[it2.position] = item;
-        _size++;
+        this->_array[it.position] = item;
+        this->_size++;
     }
 
     Type popFirst()
     {
-        throw std::runtime_error("TODO");
+        Type value = this->_array[0]; // Type val = *(begin());
+        erase(begin());
+        return value;
     }
 
     Type popLast()
     {
-        throw std::runtime_error("TODO");
+        Type value = this->_array[this->_size - 1]; // Type val = *(end());
+        erase(end());
+        return value;
     }
 
     void erase(const const_iterator& possition)
     {
-        (void)possition;
-        throw std::runtime_error("TODO");
+        const_iterator it = possition;
+        for(it; it != end(); it++)
+        {
+            this->_array[it.position] = this->_array[it.position + 1];
+        }
     }
 
     void erase(const const_iterator& firstIncluded, const const_iterator& lastExcluded)
     {
-        (void)firstIncluded;
-        (void)lastExcluded;
-        throw std::runtime_error("TODO");
+        const_iterator it = firstIncluded;
+        const_iterator it2 = lastExcluded;
+        size_type size_difference = lastExcluded.position - firstIncluded.position;
+        for(it2; it2 != end(); it++, it2++)
+        {
+            this->_array[it.position] = this->_array[it2.position];
+        }
+        this->_size = _size - size_difference;
     }
 
     iterator begin()
     {
-        throw std::runtime_error("TODO");
+        return Iterator(ConstIterator(this,0));
     }
 
     iterator end()
     {
-        throw std::runtime_error("TODO");
+        return Iterator(ConstIterator(this,this->_size));
     }
 
     const_iterator cbegin() const
     {
-        throw std::runtime_error("TODO");
+        return ConstIterator(this,0);
     }
 
     const_iterator cend() const
     {
-        throw std::runtime_error("TODO");
+        return ConstIterator(this,this->_size);
     }
 
     const_iterator begin() const
@@ -213,7 +223,7 @@ public:
 };
 
 template <typename Type>
-class Vector<Type>::ConstIterator
+class Vector<Type>::ConstIterator //read only iterator
 {
 public:
     using iterator_category = std::bidirectional_iterator_tag;
@@ -222,56 +232,72 @@ public:
     using pointer = typename Vector::const_pointer;
     using reference = typename Vector::const_reference;
 
+    const Type *vect;
+    size_type position;
+
     explicit ConstIterator()
-    {}
+    {
+        this->vect= nullptr;
+        this->position = 0;
+    }
+    ConstIterator(const Vector<value_type> *vect, int pos)
+    {
+        this->vect= vect;
+        this->position = pos;
+    }
 
     reference operator*() const
     {
-        throw std::runtime_error("TODO");
+        if(this->vect == nullptr || this->position == this->vect->_size) throw std::out_of_range("");
+        return this->vect->_array[this->position];
     }
 
-    ConstIterator& operator++()
+    ConstIterator& operator++() //dostajemy adres do danych
     {
-        throw std::runtime_error("TODO");
+        if(this->vect == nullptr || (int) this->vect->_max_size <= this->index) throw std::out_of_range("");
+        ++(this->position);
+        return *this;
     }
 
     ConstIterator operator++(int)
     {
-        throw std::runtime_error("TODO");
+        ConstIterator it(this->vect, this->position);
+        it++();
+        return it;
     }
 
     ConstIterator& operator--()
     {
-        throw std::runtime_error("TODO");
+        if(this->vect == nullptr || (int) this->position <= 0) throw std::out_of_range("");
+        --(this->position);
+        return *this;
     }
-
     ConstIterator operator--(int)
     {
-        throw std::runtime_error("TODO");
+        ConstIterator it(this->vect, this->position);
+        it--();
+        return it;
     }
-
     ConstIterator operator+(difference_type d) const
     {
-        (void)d;
-        throw std::runtime_error("TODO");
+        if(this->position + d < 0 || this->position + d > (int)this->vect->_max_size)throw std::out_of_range("");
+        ConstIterator it(this->vect,this-position + d);
+        return it;
     }
 
     ConstIterator operator-(difference_type d) const
     {
-        (void)d;
-        throw std::runtime_error("TODO");
+        return this->operator+(-d);
     }
 
     bool operator==(const ConstIterator& other) const
     {
-        (void)other;
-        throw std::runtime_error("TODO");
+        return (this->vect == other.vect && this->position == other.position);
     }
 
     bool operator!=(const ConstIterator& other) const
     {
-        (void)other;
-        throw std::runtime_error("TODO");
+        return !(this->operator==(other));
     }
 };
 
