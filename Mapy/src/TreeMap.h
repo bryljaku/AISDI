@@ -33,10 +33,11 @@ public:
   using const_iterator = ConstIterator;
 
 class Node{
-	value_type element; 
-	Node* left, right, parent;
+public:
+	value_type element;
+	Node  *left, *right, *parent;
 	int balance;
-	
+
 	Node(key_type key, mapped_type value, Node* left = nullptr,
 		Node* right = nullptr, Node* parent = nullptr):
 		element(key, value), left(left), right(right), parent(parent),
@@ -50,7 +51,7 @@ void rebalance(Node *n) {
     if (!n)
 		return;
 	setBalance(n);
-	
+
     if (n->balance == -2) {
         if (height(n->left->left) >= height(n->left->right))
             n = rotateRight(n);
@@ -63,73 +64,75 @@ void rebalance(Node *n) {
         else
             n = rotateRightThenLeft(n);
     }
- 
+
     if (n->parent)
         rebalance(n->parent);
     else
         root = n;
 }
- 
-void rotateLeft(Node *a) {
+
+Node* rotateLeft(Node *a) {
     Node *b = a->right;
     b->parent = a->parent;
     a->right = b->left;
- 
+
     if (a->right != NULL)
         a->right->parent = a;
- 
+
     b->left = a;
     a->parent = b;
- 
+
     if (b->parent != NULL) {
-        if (b->parent->right == a) 
+        if (b->parent->right == a)
             b->parent->right = b;
-        else 
+        else
             b->parent->left = b;
     }
- 
+
     setBalance(a);
     setBalance(b);
+    return b;
 }
- 
-	void rotateRight(Node *a) {
+
+	Node* rotateRight(Node *a) {
     Node *b = a->left;
     b->parent = a->parent;
     a->left = b->right;
- 
+
     if (a->left != NULL)
         a->left->parent = a;
- 
+
     b->right = a;
     a->parent = b;
- 
+
     if (b->parent != NULL) {
-        if (b->parent->right == a) 
+        if (b->parent->right == a)
             b->parent->right = b;
-        else            
+        else
 			b->parent->left = b;
     }
     setBalance(a);
     setBalance(b);
-    
+    return b;
+
 }
- 
-void rotateLeftThenRight(Node *n) {
+
+Node* rotateLeftThenRight(Node *n) {
     n->left = rotateLeft(n->left);
-    rotateRight(n);
+    return rotateRight(n);
 }
- 
-void rotateRightThenLeft(Node *n) {
+
+Node* rotateRightThenLeft(Node *n) {
     n->right = rotateRight(n->right);
-    rotateLeft(n);
+   return rotateLeft(n);
 }
- 
+
 int height(Node *n) {
     if (!n)
         return -1;
     return 1 + std::max(height(n->left), height(n->right));
 }
- 
+
 void setBalance(Node *n) {
     n->balance = height(n->right) - height(n->left);
 }
@@ -147,17 +150,15 @@ Node* treeSuccessor(Node *node) const {
         return B;
     }
 Node* treePredecessor(Node *node) const {
-        if(node == nullptr) {
+        if(!node)
             return node;
-        }
 
-        if(node->left != nullptr) {
+        if(!node->left)
             return maximum(node->left);
-        }
 
         Node *B = node->parent;
 
-        while(B != nullptr && node == B->left) {
+        while(!B && node == B->left) {
             node = B;
             B = B->parent;
         }
@@ -193,8 +194,8 @@ Node* maximum(Node * parent)
 
 Node* findNode(Node *node, key_type key )
 {
-	while(node && key != node->element->first)
-		node = (node->element->first < key) ? node->left : node->right;
+	while(node && key != node->element.first)
+		node = (node->element.first < key) ? node->left : node->right;
 	return node;
 }
 
@@ -224,17 +225,17 @@ Node* findNode(Node *node, key_type key )
 	other.treeSize = 0;
 	other.root = nullptr;
   }
-  
+
   ~TreeMap()
   {
 	clearFromGivenNode(root);
   }
-  
+
   TreeMap& operator=(const TreeMap& other)
   {
-    if (this == &other) 
+    if (this == &other)
 		return *this;
-	
+
 	clearFromGivenNode(root);
 	root = other.root;
 	treeSize = other.treeSize;
@@ -245,7 +246,7 @@ Node* findNode(Node *node, key_type key )
   {
     if (this == &other)
 		return *this;
-	
+
 	clearFromGivenNode(root);
 	root = other.root;
 	treeSize = other.treeSize;
@@ -263,13 +264,13 @@ Node* findNode(Node *node, key_type key )
   {
 	Node * temp = root;
 	Node * prev = nullptr;
-	
+
 	while(temp != nullptr)
 	{
 		prev = temp;
-		if (key == temp->element.first)//node with key already exists 
+		if (key == temp->element.first)//node with key already exists
 			return temp->element.second;
-		
+
 		if (key > temp->element.first)
 			temp = temp->right;
 		else
@@ -278,7 +279,7 @@ Node* findNode(Node *node, key_type key )
 	Node* newNode = new Node(key, mapped_type{});
 	if (!prev) //tree was empty
 		root = newNode;
-		
+
 	if (key > prev->element.first){
 		prev->right = newNode;
 		rebalance(prev);
@@ -287,7 +288,7 @@ Node* findNode(Node *node, key_type key )
 		prev->left = newNode;
 		rebalance(prev);
 	}
-	
+
 	newNode->parent = prev;
 	treeSize++;
 	return newNode->element.second;
@@ -311,15 +312,15 @@ Node* findNode(Node *node, key_type key )
 
   const_iterator find(const key_type& key) const
   {
-	constIterator it;
+	ConstIterator it;
 	it.tree = this;
-	it.node = findNode(root, key);
+    it.node = findNode(root, key);
 	return it;
   }
 
   iterator find(const key_type& key)
   {
-	  iterator it;
+	  Iterator it;
 	  it.tree = this;
 	  it.node = findNode(root, key);
 	  return it;
@@ -333,14 +334,14 @@ Node* findNode(Node *node, key_type key )
   {
     if (it == end())
 		throw std::out_of_range("Element does not exist");
-	
+
 	Node* toRemove = it.node;
 	Node* parentOfToRemove = toRemove->parent;
 	if (!parentOfToRemove)
 		root = nullptr;
-	else if (!(toRemove->left) %% !(toRemove->right))//delete leaf
+	else if (!(toRemove->left) && !(toRemove->right))//delete leaf
 	{
-		if(parentOfToRemove->left = toRemove)
+		if (parentOfToRemove->left == toRemove)
 			parentOfToRemove->left = nullptr;
 		else
 			parentOfToRemove->right = nullptr;
@@ -354,7 +355,7 @@ Node* findNode(Node *node, key_type key )
 			parentOfToRemove->left = toRemove->right;
 		else
 			parentOfToRemove->right = toRemove->right;
-		toRemove->right->parent = parentOfToRemove
+		toRemove->right->parent = parentOfToRemove;
 		rebalance(parentOfToRemove);
 	}
 	else if (toRemove->left && !(toRemove->right))//left child
@@ -365,24 +366,24 @@ Node* findNode(Node *node, key_type key )
 			parentOfToRemove->left = toRemove->left;
 		else
 			parentOfToRemove->right = toRemove->left;
-		toRemove->left->parent = parentOfToRemove
-		rebalance(parentOfToRemove);	
+		toRemove->left->parent = parentOfToRemove;
+		rebalance(parentOfToRemove);
 	}
 	else //two children
 	{
 		Node* newParentLeft = minimum(toRemove->right);
-		
+
 		if (!parentOfToRemove)
 			root = toRemove->right;
 		else if (parentOfToRemove->left == toRemove)
 			parentOfToRemove->left = toRemove->right;
 		else
 			parentOfToRemove->right = toRemove->right;
-		
+
 		newParentLeft->left = toRemove->left;
 		toRemove->left->parent = newParentLeft;
 		rebalance(newParentLeft);
-		
+
 	}
 	treeSize--;
 	delete toRemove;
@@ -395,7 +396,7 @@ Node* findNode(Node *node, key_type key )
 
   bool operator==(const TreeMap& other) const
   {
-	if(treeSize != other.treeSize) 
+	if(treeSize != other.treeSize)
 		return false;
     const_iterator iterator1 = begin();
     const_iterator iterator2 = other.begin();
@@ -407,7 +408,7 @@ Node* findNode(Node *node, key_type key )
       iterator1++;
       iterator2++;
 	}
-    return true;  
+    return true;
   }
 
   bool operator!=(const TreeMap& other) const
@@ -427,14 +428,14 @@ iterator end()
 	Iterator it;
     it.tree = this;
 	it.node = minimum(root);
-    return it;  
+    return it;
 }
 
   const_iterator cbegin() const
   {
 ConstIterator it;
         it.tree = this;
-        it.node = treeMinimum(root);
+        it.node = minimum(root);
 
         return it;  }
 
@@ -467,7 +468,7 @@ public:
   using pointer = const typename TreeMap::value_type*;
 
     Node *node;
-    const TreeMap *tree;
+     TreeMap *tree;
 
   explicit ConstIterator()
   {}
@@ -512,14 +513,14 @@ ConstIterator(const ConstIterator& other): node(other.node), tree(other.tree) {}
 	  if(*this == tree->begin())
             throw std::out_of_range("Tree operator-- POST");
 
-        ConstIterator tmp;
+        ConstIterator temp;
         temp.node = node;
         temp.tree = tree;
 
-        if(node == nullptr) 
+        if(node == nullptr)
 		{
             node = tree->maximum(tree->root);
-            return tmp;
+            return temp;
         }
         node = tree->treePredecessor(node);
         return temp;
@@ -549,7 +550,10 @@ ConstIterator(const ConstIterator& other): node(other.node), tree(other.tree) {}
 			return false;
 	}
 	else
-		return node->element == other->node->element;
+		if (node->element == other.node->element)
+		return true;
+		else
+		return false;
   }
 
   bool operator!=(const ConstIterator& other) const
@@ -614,233 +618,3 @@ public:
 
 #endif /* AISDI_MAPS_MAP_H */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//funkcje do poprawienia
-//kod sie powtarza
-//TO DO - nowa funkcja obslugujaca /**/
-/*void rotateRight(Node * grandParent)
-{
-	if(!grandParent)
-		throw std::logic_error("rotation impossible");
-	auto temp = grandParent->left; //rotating around this node
-	grandParent->left = temp->right
-	if(!(temp->right))
-		temp->right->parent = grandParent;
-/*	if(grandParent == root)
-		root = temp;
-	else{ //if grandparent has a parent
-		if(grandParent == grandParent->parent->right)
-			grandParent->parent->right = temp;
-		else
-			grandParent->parent->left = temp;
-/*<	}
-	temp-right = grandParent;
-/**	temp->parent = grandParent->parent;
-/**	grandParent->parent = temp;
-}/*
-void rotateLeft(Node * grandParent)
-{
-	if(!grandParent)
-		throw std::logic_error("rotation impossible");
-	auto temp = grandParent->right;//rotating around this node
-	grandParent->right = temp->left;
-	if(!(temp->left)) 
-		temp->right->parent = grandParent;
-	if(grandParent == root)
-		root = temp;
-	else{ //if grandparent has a parent
-		if(grandParent == grandParent->parent->left)
-			grandParent->parent->left = temp;
-		else
-			grandParent->parent->right = temp;
-	}
-	temp->left = grandParent;
-	temp->parent = grandParent->parent;
-	grandParent;
-}
-
-void rightLeftRotate(Node* grandParent)
-{
-	rotateLeft(grandParent->right);
-	rotateRight(grandParent);
-}
-void leftRightRotate(Node* grandParent)
-{
-	rotateRight(grandParent->left);
-	rotateLeft(grandParent);
-}
-void rebalance(Node * temp, int difference)
-{
-	int currBalance = temp->balance + difference;
-	
-	if(currBalance > 1){
-		if(temp->left->balance > 0){ // RR
-			temp->balance -= 2;
-			temp->left->balance -= 1;
-			rotateRight(temp);
-		}
-		else{// LR
-			if(temp->left->right->balance > 0)
-				temp->balance = -1;
-			else
-				temp->balance = 0;
-			}
-		temp->left->right->balance = 0;
-		leftRightRotate(temp);
-	}
-	else if(currBalance < -1){
-		
-	}
-	else{//if currBalance in {-1, 0, 1}
-		//current node is balanced
-		//we go higher
-		
-	}
-}*/
-/*
-//rotations
-void RR(Node * A)
-{
-	Node * B = A->right;
-	Node * top = A->parent;
-	
-	A->right = B->left;
-	
-	if (a->right)
-		A->right->parent = A;
-	
-	B->left = A;
-	B->parent = top;
-	A->parent = B;
-	
-	if (top){//if there is a parent we have to 
-			//change its childs pointer
-		if (top->left == A)
-			top->left = B;
-		else
-			top->right = B;
-	}
-	else
-		root = B;
-	
-	if (B->balance == -1){
-		A->balance = 0;
-		B->balance = 0;
-	}
-	else{
-		A->balance = -1;
-		B->balance = 1;
-	}
-}
-void LL(Node * A)
-{
-	Node * B = A->left;
-	Node * top = A->parent;
-	A->left = B->right;
-
-	if (A->left)
-			A->left->up = A;
-		
-	B->right = A;
-	B->parent = top;
-	A->parent = B;
-	
-	if (top){
-		if (top->left == A)
-			top->left = B;
-		else
-			top->right = B;
-	}
-	else 
-		root = B;
-	
-	if (B->balance == 1){
-		A->balance = 0;
-		B->balance = 0;
-	}
-	else{
-		A->balance = 1;
-		B->balance = -1;
-	}
-}
-
-void LR(Node * A)
-{
-	Node * B = A->left;
-	Node * C = B->right;
-	Node * top = A->parent;
-	
-	B->right = C->left;
-	if (B->right)
-		B->right->parent = B;
-	A->left = C->right;
-	if (A->left)
-		A->left->parent = A;
-	C->right = A;
-	C->left = B;
-	A->parent = C;
-	B->parent = C;
-	C->parent = top;
-	if (top){
-		if (top->left == A)
-			top->left = C;
-		else
-			top->right = C;
-	}
-	else
-		root = C;
-	A->balance = (C->balance == 1) ? -1 : 0;
-	B->balance = (C->balance == -1) ? 1 : 0;
-	C->balance = 0;
-}
-void RL(Node * A)
-{
-	Node * B = A->right;
-	Node * C = B->left;
-	Node * top = A->parent;
-	
-	B->left = C->right;
-	if (B->left)
-		A->right->parent = A;
-	A->right = C->left;
-	if (A->right)
-		A->right->parent = A;
-	C->left = A;
-	C->right = B;
-	A->parent = C;
-	B->parent  = C;
-	C->parent = top;
-	if (top){
-		if (top->left == A)
-			top->left = C;
-		else
-			top->right = C;
-	}
-	else
-		root = C;
-	
-	A->balance = (C->balance == -1) ? 1 : 0;
-	B->balance = (C->balance == 1) ? -1 : 0;
-	C->balance = 0;
-	
-}*/
