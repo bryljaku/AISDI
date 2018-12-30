@@ -46,133 +46,123 @@ class Node{
 Node* root;
 size_type treeSize;
 
-//rotations
-void RR(Node * A)
-{
-	Node * B = A->right;
-	Node * top = A->parent;
+void rebalance(Node *n) {
+    if (!n)
+		return;
+	setBalance(n);
 	
-	A->right = B->left;
-	
-	if (a->right)
-		A->right->parent = A;
-	
-	B->left = A;
-	B->parent = top;
-	A->parent = B;
-	
-	if (top){//if there is a parent we have to 
-			//change its childs pointer
-		if (top->left == A)
-			top->left = B;
-		else
-			top->right = B;
-	}
-	else
-		root = B;
-	
-	if (B->balance == -1){
-		A->balance = 0;
-		B->balance = 0;
-	}
-	else{
-		A->balance = -1;
-		B->balance = 1;
-	}
+    if (n->balance == -2) {
+        if (height(n->left->left) >= height(n->left->right))
+            n = rotateRight(n);
+        else
+            n = rotateLeftThenRight(n);
+    }
+    else if (n->balance == 2) {
+        if (height(n->right->right) >= height(n->right->left))
+            n = rotateLeft(n);
+        else
+            n = rotateRightThenLeft(n);
+    }
+ 
+    if (n->parent)
+        rebalance(n->parent);
+    else
+        root = n;
 }
-void LL(Node * A)
-{
-	Node * B = A->left;
-	Node * top = A->parent;
-	
-	A->left = B->right;
-	if (A->left)
-			A->left->up = A;
-		
-	B->right = A;
-	B->up = top;
-	A->up = B;
-	
-	if (top){
-		if (top->left == A)
-			top->left = B;
-		else
-			top->right = B;
-	}
-	else 
-		root = B;
-	
-	if (B->balance == 1){
-		A->balance = 0;
-		B->balance = 0;
-	}
-	else{
-		A->balance = 1;
-		B->balance = -1;
-	}
+ 
+void rotateLeft(Node *a) {
+    Node *b = a->right;
+    b->parent = a->parent;
+    a->right = b->left;
+ 
+    if (a->right != NULL)
+        a->right->parent = a;
+ 
+    b->left = a;
+    a->parent = b;
+ 
+    if (b->parent != NULL) {
+        if (b->parent->right == a) 
+            b->parent->right = b;
+        else 
+            b->parent->left = b;
+    }
+ 
+    setBalance(a);
+    setBalance(b);
 }
+ 
+	void rotateRight(Node *a) {
+    Node *b = a->left;
+    b->parent = a->parent;
+    a->left = b->right;
+ 
+    if (a->left != NULL)
+        a->left->parent = a;
+ 
+    b->right = a;
+    a->parent = b;
+ 
+    if (b->parent != NULL) {
+        if (b->parent->right == a) 
+            b->parent->right = b;
+        else            
+			b->parent->left = b;
+    }
+    setBalance(a);
+    setBalance(b);
+    
+}
+ 
+void rotateLeftThenRight(Node *n) {
+    n->left = rotateLeft(n->left);
+    rotateRight(n);
+}
+ 
+void rotateRightThenLeft(Node *n) {
+    n->right = rotateRight(n->right);
+    rotateLeft(n);
+}
+ 
+int height(Node *n) {
+    if (!n)
+        return -1;
+    return 1 + std::max(height(n->left), height(n->right));
+}
+ 
+void setBalance(Node *n) {
+    n->balance = height(n->right) - height(n->left);
+}
+Node* treeSuccessor(Node *node) const {
+        if(!node)
+            return node;
+        if(node->right)
+            return minimum(node->right);
 
-void LR(Node * A)
-{
-	Node * B = A->left;
-	Node * C = B->right;
-	Node * top = A->parent;
-	
-	B->right = C->left;
-	if (B->right)
-		B->right->parent = B;
-	A->left = C->right;
-	if (A->left)
-		A->left->parent = A;
-	C->right = A;
-	C->left = B;
-	A->parent = C;
-	B->parent = C;
-	C->parent = top;
-	if (top){
-		if (top->left == A)
-			top->left = C;
-		else
-			top->right = C;
-	}
-	else
-		root = C;
-	A->balance = (C->balance == 1) ? -1 : 0;
-	B->balance = (C->balance == -1) ? 1 : 0;
-	C->balance = 0;
-}
-void RL(Node * A)
-{
-	Node * B = A->right;
-	Node * C = B->left;
-	Node * top = A->parent;
-	
-	B->left = C->right;
-	if (B->left)
-		A->right->parent = A;
-	A->right = C->left;
-	if (A->right)
-		A->right->parent = A;
-	C->left = A;
-	C->right = B;
-	A->parent = C;
-	B->parent  = C;
-	C->parent = top;
-	if (top){
-		if (top->left == A)
-			top->left = C;
-		else
-			top->right = C;
-	}
-	else
-		root = C;
-	
-	A->balance = (C->balance == -1) ? 1 : 0;
-	B->balance = (C->balance == 1) ? -1 : 0;
-	C->balance = 0;
-	
-} 
+        Node *B = node->parent;
+        while(B && node == B->right) {
+            node = B;
+            B = B->parent;
+        }
+        return B;
+    }
+Node* treePredecessor(Node *node) const {
+        if(node == nullptr) {
+            return node;
+        }
 
+        if(node->left != nullptr) {
+            return maximum(node->left);
+        }
+
+        Node *B = node->parent;
+
+        while(B != nullptr && node == B->left) {
+            node = B;
+            B = B->parent;
+        }
+        return B;
+    }
 void clearFromGivenNode(Node * node)
 {
 	if (!node)
@@ -201,7 +191,12 @@ Node* maximum(Node * parent)
 	return parent;
 }
 
-
+Node* findNode(Node *node, key_type key )
+{
+	while(node && key != node->element->first)
+		node = (node->element->first < key) ? node->left : node->right;
+	return node;
+}
 
   TreeMap():root(nullptr), treeSize(0)
   {}
@@ -286,11 +281,11 @@ Node* maximum(Node * parent)
 		
 	if (key > prev->element.first){
 		prev->right = newNode;
-		rebalance(prev, -1);
+		rebalance(prev);
 	}
 	else{
 		prev->left = newNode;
-		rebalance(prev, 1);
+		rebalance(prev);
 	}
 	
 	newNode->parent = prev;
@@ -316,63 +311,140 @@ Node* maximum(Node * parent)
 
   const_iterator find(const key_type& key) const
   {
-    (void)key;
-    throw std::runtime_error("TODO");
+	constIterator it;
+	it.tree = this;
+	it.node = findNode(root, key);
+	return it;
   }
 
   iterator find(const key_type& key)
   {
-    (void)key;
-    throw std::runtime_error("TODO");
+	  iterator it;
+	  it.tree = this;
+	  it.node = findNode(root, key);
+	  return it;
   }
-
   void remove(const key_type& key)
   {
-    (void)key;
-    throw std::runtime_error("TODO");
+	remove(find(key));
   }
 
   void remove(const const_iterator& it)
   {
-    (void)it;
-    throw std::runtime_error("TODO");
+    if (it == end())
+		throw std::out_of_range("Element does not exist");
+	
+	Node* toRemove = it.node;
+	Node* parentOfToRemove = toRemove->parent;
+	if (!parentOfToRemove)
+		root = nullptr;
+	else if (!(toRemove->left) %% !(toRemove->right))//delete leaf
+	{
+		if(parentOfToRemove->left = toRemove)
+			parentOfToRemove->left = nullptr;
+		else
+			parentOfToRemove->right = nullptr;
+		rebalance(parentOfToRemove);
+	}
+	else if (!(toRemove->left) && toRemove->right)//right child
+	{
+		if (!parentOfToRemove)
+			root = toRemove->right;
+		else if (parentOfToRemove->left == toRemove)
+			parentOfToRemove->left = toRemove->right;
+		else
+			parentOfToRemove->right = toRemove->right;
+		toRemove->right->parent = parentOfToRemove
+		rebalance(parentOfToRemove);
+	}
+	else if (toRemove->left && !(toRemove->right))//left child
+	{
+		if (!parentOfToRemove)
+			root = toRemove->left;
+		else if (parentOfToRemove->left == toRemove)
+			parentOfToRemove->left = toRemove->left;
+		else
+			parentOfToRemove->right = toRemove->left;
+		toRemove->left->parent = parentOfToRemove
+		rebalance(parentOfToRemove);	
+	}
+	else //two children
+	{
+		Node* newParentLeft = minimum(toRemove->right);
+		
+		if (!parentOfToRemove)
+			root = toRemove->right;
+		else if (parentOfToRemove->left == toRemove)
+			parentOfToRemove->left = toRemove->right;
+		else
+			parentOfToRemove->right = toRemove->right;
+		
+		newParentLeft->left = toRemove->left;
+		toRemove->left->parent = newParentLeft;
+		rebalance(newParentLeft);
+		
+	}
+	treeSize--;
+	delete toRemove;
   }
 
   size_type getSize() const
   {
-    throw std::runtime_error("TODO");
+    return treeSize;
   }
 
   bool operator==(const TreeMap& other) const
   {
-    (void)other;
-    throw std::runtime_error("TODO");
+	if(treeSize != other.treeSize) 
+		return false;
+    const_iterator iterator1 = begin();
+    const_iterator iterator2 = other.begin();
+
+    while (iterator1 != end() ) {
+
+        if((*iterator1).first != (*iterator2).first || (*iterator1).second != (*iterator2).second)
+            return false;
+      iterator1++;
+      iterator2++;
+	}
+    return true;  
   }
 
   bool operator!=(const TreeMap& other) const
   {
-    return !(*this == other);
+	return !(*this == other);
   }
-
   iterator begin()
   {
-    throw std::runtime_error("TODO");
-  }
+        Iterator it;
+        it.tree = this;
+        it.node = nullptr;
 
-  iterator end()
-  {
-    throw std::runtime_error("TODO");
-  }
+        return it;  }
+
+iterator end()
+{
+	Iterator it;
+    it.tree = this;
+	it.node = minimum(root);
+    return it;  
+}
 
   const_iterator cbegin() const
   {
-    throw std::runtime_error("TODO");
-  }
+ConstIterator it;
+        it.tree = this;
+        it.node = treeMinimum(root);
+
+        return it;  }
 
   const_iterator cend() const
   {
-    throw std::runtime_error("TODO");
-  }
+        ConstIterator it;
+        it.tree = this;
+        it.node = nullptr;
+
+        return it;  }
 
   const_iterator begin() const
   {
@@ -394,38 +466,70 @@ public:
   using value_type = typename TreeMap::value_type;
   using pointer = const typename TreeMap::value_type*;
 
+    Node *node;
+    const TreeMap *tree;
+
   explicit ConstIterator()
   {}
 
-  ConstIterator(const ConstIterator& other)
+
+ConstIterator(const ConstIterator& other): node(other.node), tree(other.tree) {}
+
+  ConstIterator& operator++()//preincrementation
   {
-    (void)other;
-    throw std::runtime_error("TODO");
+	if(!node)
+		throw std::out_of_range("operator++ nullptr");
+	node = tree->treeSuccessor(node);
+	return *this;
   }
 
-  ConstIterator& operator++()
+  ConstIterator operator++(int)//postincrementation
   {
-    throw std::runtime_error("TODO");
-  }
-
-  ConstIterator operator++(int)
-  {
-    throw std::runtime_error("TODO");
+    if(!node)
+		throw std::out_of_range("operator++ nullptr");
+	ConstIterator temp;
+	temp.node = node;
+	temp.tree = tree;
+	node = tree->treeSuccessor(node);
+	return temp;
   }
 
   ConstIterator& operator--()
   {
-    throw std::runtime_error("TODO");
-  }
+    if(*this == tree->begin())
+		throw std::out_of_range("operator--");
+	if(!node)
+	{
+		node = tree->maximum(tree->root);
+		return *this;
+	}
+	node = tree->treePredecessor(node);
+	return *this;
+	}
 
   ConstIterator operator--(int)
   {
-    throw std::runtime_error("TODO");
+	  if(*this == tree->begin())
+            throw std::out_of_range("Tree operator-- POST");
+
+        ConstIterator tmp;
+        temp.node = node;
+        temp.tree = tree;
+
+        if(node == nullptr) 
+		{
+            node = tree->maximum(tree->root);
+            return tmp;
+        }
+        node = tree->treePredecessor(node);
+        return temp;
   }
 
   reference operator*() const
   {
-    throw std::runtime_error("TODO");
+	if(!node)
+		throw std::out_of_range("wrong reference");
+	return node->element;
   }
 
   pointer operator->() const
@@ -435,8 +539,17 @@ public:
 
   bool operator==(const ConstIterator& other) const
   {
-    (void)other;
-    throw std::runtime_error("TODO");
+	if(tree != other.tree)
+		return false;
+    if(!node || !(other.node))
+	{
+		if(!node && !(other.node))
+			return true;
+		else
+			return false;
+	}
+	else
+		return node->element == other->node->element;
   }
 
   bool operator!=(const ConstIterator& other) const
@@ -500,6 +613,25 @@ public:
 }
 
 #endif /* AISDI_MAPS_MAP_H */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -584,4 +716,131 @@ void rebalance(Node * temp, int difference)
 		//we go higher
 		
 	}
+}*/
+/*
+//rotations
+void RR(Node * A)
+{
+	Node * B = A->right;
+	Node * top = A->parent;
+	
+	A->right = B->left;
+	
+	if (a->right)
+		A->right->parent = A;
+	
+	B->left = A;
+	B->parent = top;
+	A->parent = B;
+	
+	if (top){//if there is a parent we have to 
+			//change its childs pointer
+		if (top->left == A)
+			top->left = B;
+		else
+			top->right = B;
+	}
+	else
+		root = B;
+	
+	if (B->balance == -1){
+		A->balance = 0;
+		B->balance = 0;
+	}
+	else{
+		A->balance = -1;
+		B->balance = 1;
+	}
+}
+void LL(Node * A)
+{
+	Node * B = A->left;
+	Node * top = A->parent;
+	A->left = B->right;
+
+	if (A->left)
+			A->left->up = A;
+		
+	B->right = A;
+	B->parent = top;
+	A->parent = B;
+	
+	if (top){
+		if (top->left == A)
+			top->left = B;
+		else
+			top->right = B;
+	}
+	else 
+		root = B;
+	
+	if (B->balance == 1){
+		A->balance = 0;
+		B->balance = 0;
+	}
+	else{
+		A->balance = 1;
+		B->balance = -1;
+	}
+}
+
+void LR(Node * A)
+{
+	Node * B = A->left;
+	Node * C = B->right;
+	Node * top = A->parent;
+	
+	B->right = C->left;
+	if (B->right)
+		B->right->parent = B;
+	A->left = C->right;
+	if (A->left)
+		A->left->parent = A;
+	C->right = A;
+	C->left = B;
+	A->parent = C;
+	B->parent = C;
+	C->parent = top;
+	if (top){
+		if (top->left == A)
+			top->left = C;
+		else
+			top->right = C;
+	}
+	else
+		root = C;
+	A->balance = (C->balance == 1) ? -1 : 0;
+	B->balance = (C->balance == -1) ? 1 : 0;
+	C->balance = 0;
+}
+void RL(Node * A)
+{
+	Node * B = A->right;
+	Node * C = B->left;
+	Node * top = A->parent;
+	
+	B->left = C->right;
+	if (B->left)
+		A->right->parent = A;
+	A->right = C->left;
+	if (A->right)
+		A->right->parent = A;
+	C->left = A;
+	C->right = B;
+	A->parent = C;
+	B->parent  = C;
+	C->parent = top;
+	if (top){
+		if (top->left == A)
+			top->left = C;
+		else
+			top->right = C;
+	}
+	else
+		root = C;
+	
+	A->balance = (C->balance == -1) ? 1 : 0;
+	B->balance = (C->balance == 1) ? -1 : 0;
+	C->balance = 0;
+	
 }*/
