@@ -71,3 +71,23 @@ Uwagi
     przeglądanie widoku błędów "Build messages" powinno być sprawdzenie zawartości okna "Build Log".
   * Przełączanie się pomiędzy trybami budowania "Debug" i "Release" wymaga otwarcia dwóch instancji
     CodeBlocks, ale obydwie wykorzystywać będą te same pliki źródłowe.
+  Drzewo:
+TODO: 
+
+map:3341
+
+map:5979
+
+map:952
+
+map:7820
+
+map:7566
+
+map:9329
+
+map:8194
+
+map:4393
+
+zsh: segme
