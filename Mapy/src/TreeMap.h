@@ -44,8 +44,7 @@ namespace aisdi
 
         void deleteFromNode(Node* node)
         {
-            if (node)
-            {
+            if (node){
                 deleteFromNode(node->left);
                 deleteFromNode(node->right);
                 --treeSize;
@@ -108,8 +107,7 @@ namespace aisdi
 
         Node* insert(Node* node, value_type value)
         {
-            if (!node) //this is place where we insert new Node
-            {
+            if (!node){ //this is place where we insert new Node
                 ++treeSize;
                 return (new Node{value});
             }
@@ -131,10 +129,8 @@ namespace aisdi
 
             if(balance > 1) //left child heavier
                 return (node->left->getBalance() > 0) ? leftLeftRotation(node) : leftRightRotation(node);
-
             if(balance < -1) //right child heavier
                 return (node->right->getBalance() < 0) ? rightRightRotation(node) : rightLeftRotation(node);
-
 
             return node;
         }
@@ -148,20 +144,18 @@ namespace aisdi
                 node->left = deleteNode(node->left, key);
             else if(key > node->getKey())
                 node->right = deleteNode(node->right, key);
-            else
-            {
-                if(node->twoChildren()) // 2 children
-                {
-                    Node* min = findMinNode(node->right);
-                    std::swap(node->value, min->value);
-                    node->right = deleteNode(node->right, min->getKey());
+            else {
+                if (node->twoChildren()){// 2 children{
+                    Node *minNode = findMinNode(node->right);
+                    std::swap(node->value, minNode->value);
+                     node->right = deleteNode(node->right, minNode->getKey());
                 }
-                else // 1 or 0 children
-                {
-                    Node* tmp = node;
+                else{// 1 or 0 children
+                    Node *tmp = node;
                     node = (node->leftChild()) ? node->left : node->right;
                     delete tmp;
                 }
+
                 --treeSize;
             }
             if (!node)
@@ -202,8 +196,7 @@ namespace aisdi
 
         TreeMap &operator=(const TreeMap &other)
         {
-            if(this != &other)
-            {
+            if(this != &other){
                 deleteTree();
                 for(auto val : other)
                     root = insert(root, val);
@@ -213,8 +206,7 @@ namespace aisdi
 
         TreeMap &operator=(TreeMap &&other)
         {
-            if(this != &other)
-            {
+            if(this != &other){
                 deleteTree();
                 treeSize = other.treeSize;
                 root = other.root;
@@ -232,8 +224,7 @@ namespace aisdi
         mapped_type &operator[](const key_type &key)
         {
             auto it = find(key);
-            if(it == end() || !it.current)
-            {
+            if(it == end() || !it.current){
                 root = insert(root, {key, mapped_type{} });
                 return find(key)->second;
             }
@@ -258,10 +249,7 @@ namespace aisdi
             auto it = find(key);
             if(it == end())
                 throw std::out_of_range("Key doesn't exist");
-            if(it == begin())
-            {
 
-            }
             return it->second;
         }
 
@@ -272,19 +260,16 @@ namespace aisdi
 
             Node* node = root;
             std::stack<Node*> parents;
-            while(node->value->first != key)
-            {
+            while(node->value->first != key){
                 parents.push(node);
-                if(key < node->value->first)
-                {
+                if(key < node->value->first){
                     if(node->left)
                         node = node->left;
                     else
                         return ConstIterator(root, nullptr, parents);
                 }
 
-                else if(key > node->value->first) /*tutaj był błąd, brakowalo "else" */
-                {
+                else if(key > node->value->first){ /*tutaj był błąd, brakowalo "else" */
                     if(node->right)
                         node = node->right;
                     else
@@ -329,8 +314,7 @@ namespace aisdi
                 return false;
 
             auto endIt = end();
-            for(auto val : other)
-            {
+            for(auto val : other){
                 auto it = find(val.first);
 
                 if(it == endIt || val != *it)
@@ -361,8 +345,7 @@ namespace aisdi
 
             std::stack<Node* > parents;
             Node* node = root;
-            while(node->left)
-            {
+            while(node->left){
                 parents.push(node);
                 node = node->left;
             }
@@ -409,9 +392,9 @@ namespace aisdi
 
         public:
 
-            explicit Node(const value_type &value)
+            explicit Node(const value_type &value1)
             {
-                this->value = new value_type{value};
+                value = new value_type{value1};
             }
 
             ~Node()
@@ -431,34 +414,34 @@ namespace aisdi
 
             bool operator!=(const Node &other)
             {
-                return !(this->operator==(other));
+                return !(operator==(other));
             }
 
             void heightUpdate()
             {
                 if(twoChildren())
-                    this->height = 1 + std::max(this->left->height, this->right->height);
+                    height = 1 + std::max(left->height, right->height);
 
                 else if(leftChild())
-                    this->height = 1 + this->left->height;
+                   height = 1 + left->height;
 
                 else if(rightChild())
-                    this->height = 1 + this->right->height;
+                    height = 1 + right->height;
 
                 else //doesn't have children
-                    this->height = 1;
+                    height = 1;
             }
 
             int getBalance()
             {
                 if(twoChildren())
-                    return (this->left->height - this->right->height);
+                    return (left->height - right->height);
 
                 else if(leftChild())
-                    return this->left->height;
+                    return left->height;
 
                 else if(rightChild())
-                    return -1*this->right->height;
+                    return -1*right->height;
 
                 else
                     return 0;
@@ -553,7 +536,7 @@ namespace aisdi
                 current = current->right;
                 travelToMin();
             }
-            else { //no right child, go parents
+            else { //no right child, go up
                 Node *tmp;
                 do {
                     tmp = current;
