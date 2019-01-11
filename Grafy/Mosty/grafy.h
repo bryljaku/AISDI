@@ -8,7 +8,7 @@
 class Graph{
 private:
 const static int size = SIZE;
-vector <int> *EdgesOfVertex;
+vector <int> *adjList;
 vector <pair<int,int>> allEdges;
 void init()
 {
