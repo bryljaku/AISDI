@@ -44,7 +44,7 @@ namespace aisdi
 
         void deleteFromNode(Node* node)
         {
-            if (node){
+            if (node) {
                 deleteFromNode(node->left);
                 deleteFromNode(node->right);
                 --treeSize;
@@ -107,19 +107,18 @@ namespace aisdi
 
         Node* insert(Node* node, value_type value)
         {
-            if (!node){ //this is place where we insert new Node
+            if (!node){ 
                 ++treeSize;
                 return (new Node{value});
             }
             key_type key = value.first;
 
-            if (key < node->getKey()) //search proper place
+            if (key < node->getKey()) 
                 node->left = insert(node->left, value);
             else
                 node->right = insert(node->right, value);
 
-            node->heightUpdate(); //update height of node
-
+            node->heightUpdate();
             return rebalance(node);
         }
 
@@ -127,9 +126,9 @@ namespace aisdi
         {
             int balance = node->getBalance();
 
-            if(balance > 1) //left child heavier
+            if (balance > 1) //left child >
                 return (node->left->getBalance() > 0) ? leftLeftRotation(node) : leftRightRotation(node);
-            if(balance < -1) //right child heavier
+            if (balance < -1) //right child >
                 return (node->right->getBalance() < 0) ? rightRightRotation(node) : rightLeftRotation(node);
 
             return node;
@@ -142,7 +141,7 @@ namespace aisdi
 
             if (key < node->getKey())
                 node->left = deleteNode(node->left, key);
-            else if(key > node->getKey())
+            else if (key > node->getKey())
                 node->right = deleteNode(node->right, key);
             else {
                 if (node->twoChildren()){// 2 children{
@@ -155,7 +154,6 @@ namespace aisdi
                     node = (node->leftChild()) ? node->left : node->right;
                     delete tmp;
                 }
-
                 --treeSize;
             }
             if (!node)
@@ -172,13 +170,13 @@ namespace aisdi
 
         TreeMap(std::initializer_list<value_type> list)
         {
-            for(auto val : list)
+            for (auto val : list)
                 root = insert(root, val);
         }
 
         TreeMap(const TreeMap &other)
         {
-            for(auto val : other)
+            for (auto val : other)
                 root = insert(root, val);
         }
 
@@ -198,7 +196,7 @@ namespace aisdi
         {
             if(this != &other){
                 deleteTree();
-                for(auto val : other)
+                for (auto val : other)
                     root = insert(root, val);
             }
             return *this;
@@ -206,7 +204,7 @@ namespace aisdi
 
         TreeMap &operator=(TreeMap &&other)
         {
-            if(this != &other){
+            if (this != &other){
                 deleteTree();
                 treeSize = other.treeSize;
                 root = other.root;
@@ -216,15 +214,12 @@ namespace aisdi
             return *this;
         }
 
-        bool isEmpty() const
-        {
-            return !treeSize;
-        }
+        bool isEmpty() const {return !treeSize;}
 
         mapped_type &operator[](const key_type &key)
         {
             auto it = find(key);
-            if(it == end() || !it.current){
+            if (it == end() || !it.current){
                 root = insert(root, {key, mapped_type{} });
                 return find(key)->second;
             }
@@ -233,34 +228,34 @@ namespace aisdi
 
         const mapped_type &valueOf(const key_type &key) const
         {
-            if(isEmpty())
-                throw std::out_of_range("Collection is empty");
+            if (isEmpty())
+                throw std::out_of_range("No Tree");
             auto it = find(key);
-            if(it == end())
-                throw std::out_of_range("Key doesn't exist");
+            if (it == end())
+                throw std::out_of_range("Key not found");
 
             return it->second;
         }
 
         mapped_type &valueOf(const key_type &key)
         {
-            if(isEmpty())
-                throw std::out_of_range("Collection is empty");
+            if (isEmpty())
+                throw std::out_of_range("No Tree");
             auto it = find(key);
-            if(it == end())
-                throw std::out_of_range("Key doesn't exist");
-
+            if (it == end())
+                throw std::out_of_range("Key not found");
+            
             return it->second;
         }
 
         const_iterator find(const key_type &key) const
         {
-            if(!root)
+            if (!root)
                 return cend();
 
             Node* node = root;
             std::stack<Node*> parents;
-            while(node->value->first != key){
+            while (node->value->first != key){
                 parents.push(node);
                 if(key < node->value->first){
                     if(node->left)
@@ -268,28 +263,25 @@ namespace aisdi
                     else
                         return ConstIterator(root, nullptr, parents);
                 }
-
-                else if(key > node->value->first){ /*tutaj był błąd, brakowalo "else" */
-                    if(node->right)
+                else if (key > node->value->first){ /*tutaj był błąd, brakowalo "else" */
+                    if (node->right)
                         node = node->right;
                     else
                         return ConstIterator(root, nullptr, parents);
                 }
             }
-            
-
             return ConstIterator(root, node, parents);
         }
 
         iterator find(const key_type &key)
         {
-            return Iterator((const_cast<const TreeMap *>(this))->find(key));
+            return Iterator((const_cast<const TreeMap*>(this))->find(key));
         }
 
         void remove(const key_type &key)
         {
             if(!root)
-                throw std::out_of_range("Collection is empty");
+                throw std::out_of_range("no tree");
 
             auto it = find(key);
             if(!it.current)
@@ -310,14 +302,14 @@ namespace aisdi
 
         bool operator==(const TreeMap &other) const
         {
-            if(treeSize != other.treeSize)
+            if (treeSize != other.treeSize)
                 return false;
 
             auto endIt = end();
-            for(auto val : other){
+            for (auto val : other){
                 auto it = find(val.first);
 
-                if(it == endIt || val != *it)
+                if (it == endIt || val != *it)
                     return false;
             }
             return true;
@@ -340,12 +332,12 @@ namespace aisdi
 
         const_iterator cbegin() const
         {
-            if(!treeSize)
+            if (!treeSize)
                 return cend();
 
             std::stack<Node* > parents;
             Node* node = root;
-            while(node->left){
+            while (node->left){
                 parents.push(node);
                 node = node->left;
             }
@@ -419,37 +411,31 @@ namespace aisdi
 
             void heightUpdate()
             {
-                if(twoChildren())
+                if (twoChildren())
                     height = 1 + std::max(left->height, right->height);
-
-                else if(leftChild())
+                else if (leftChild())
                    height = 1 + left->height;
-
-                else if(rightChild())
+                else if (rightChild())
                     height = 1 + right->height;
-
                 else //doesn't have children
                     height = 1;
             }
 
             int getBalance()
             {
-                if(twoChildren())
+                if (twoChildren())
                     return (left->height - right->height);
-
-                else if(leftChild())
+                else if (leftChild())
                     return left->height;
-
-                else if(rightChild())
+                else if (rightChild())
                     return -1*right->height;
-
                 else
                     return 0;
             }
             Node* max()
             {
                 Node *temp = this;
-                while(temp->right)
+                while (temp->right)
                     temp = temp->right;
                 return temp;
             }
@@ -523,9 +509,9 @@ namespace aisdi
         }
 
         ConstIterator &operator++() {
-            if(root == nullptr)
+            if (!root)
                 throw std::out_of_range("Collection is empty");
-            if(current == nullptr)
+            if (!current)
                 throw std::out_of_range("out of range incrementing");
             if (current == root->max()) {
                 parents.push(current);
@@ -557,15 +543,15 @@ namespace aisdi
 
         ConstIterator &operator--()
         {
-            if(!root || current == root->min())
+            if (!root || current == root->min())
                 throw std::out_of_range("--");
 
-            if(!current){
+            if (!current){
                 current = parents.top();
                 parents.pop();
             }
 
-           else if(current->rightChild()){
+           else if (current->rightChild()){
                 parents.push(current);
                 current = current->left;
                 travelToMax();
@@ -576,7 +562,7 @@ namespace aisdi
                     tmp = current;
                     current = parents.top();
                     parents.pop();
-                } while(tmp == current->left);
+                } while (tmp == current->left);
             }
 
             return *this;
@@ -591,7 +577,7 @@ namespace aisdi
 
         reference operator*() const
         {
-            if(!root || !current)
+            if (!root || !current)
                 throw std::out_of_range("*");
 
             return *(current->value);
