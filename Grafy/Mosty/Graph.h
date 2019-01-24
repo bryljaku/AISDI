@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include <algorithm>
 
 #ifndef GRAFY_GRAPH_H
 #define GRAFY_GRAPH_H
