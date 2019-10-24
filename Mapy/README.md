@@ -1,4 +1,4 @@
-AISDI - Mini-projekt "asocjacyjne"
+HashMap and AVL Tree
 ==================================
 
 Cel ćwiczenia
