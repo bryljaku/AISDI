@@ -1,5 +1,7 @@
-AISDI - Mini-projekt "liniowe"
-==============================
+
+Vector and Linked List implementation
+
+=============================
 
 Cel ćwiczenia
 -----------------------------
